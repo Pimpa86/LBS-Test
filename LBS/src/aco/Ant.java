@@ -39,8 +39,8 @@ public class Ant {
 	}
 	
 
-	/**
-	 * @return
+	/** Choose next city to visit
+	 * @return Index of next city
 	 */
 	private int chooseNextCity()
 	{
