@@ -55,16 +55,19 @@ public class AntColony {
 		  }   
 	}
 	
-	public void getAnts(){
-		 //randomly put ant into map   
+	
+	/**
+	 * Distribute Ants randomly across citys
+	 */
+	public void getAnts(){ 
 		 int i=0;   
 		 int city;   
 
 		 for (i=0;i<acs.antCount;i++)   
 		 {   
-			 //Zufällige Startstadt
+			 //pick random city
 			 city=ACS.random.nextInt(acs.cityCount);
-			 //gewählte Stadt als besucht markieren
+			 //mark city as visited
 			 ants[i].addCity(city);   
 		 }   
 	}
@@ -72,55 +75,60 @@ public class AntColony {
 
 	public void startSearch(){
 		 //begin to find best solution   
-		 int max=0;//every ant tours times   
-		 int i;   
-		 int j;   
-		 double temp;   
-		 int temptour[] = new int[acs.cityCount];
+		 int max=0;//iteration counter 
+		 double temp;  //temp tour length
+		 int temptour[] = new int[acs.cityCount]; //temp tour array
+		 int i;
+		 int j;
 		 while (max<acs.iterationCount)   
 		 {     
-			 for(j=0;j<acs.antCount;j++){    
-				   for (i=0;i<acs.cityCount-1;i++){   
+			 //Jede Ameise jede Stadt einmal besuchen
+			 for(j=0;j<acs.antCount;j++){ //for every ant   
+				   for (i=0;i<acs.cityCount-1;i++){  //visit every city
 					   ants[j].move();
-					   //local pheromon update
+					   //local pheromon update nach ACS
 					   acs.dTrail[ants[j].tabu[i]][ants[j].tabu[i+1]]=(1-acs.evap_rate)*acs.dTrail[ants[j].tabu[i]][ants[j].tabu[i+1]]+acs.evap_rate*1.0;
 				   }
 			  }   
-		   
-			  for(j=0;j<acs.antCount;j++)    
-			  {   
-			   ants[j].move2last();   
-			   ants[j].updateResult ();   
-			  }   
+
+			 
+			 //Zurück zur Startstadt
+			 for(j=0;j<acs.antCount;j++){   
+				  ants[j].move2last();   
+				  ants[j].updateResult();   
+			 }   
 			   
-			  //find out the best solution of the step and put it into temp   
-			  int t;   
-			  temp=ants[0].currentTourLength;   
-			  for (t=0;t<acs.cityCount;t++)   
-				  temptour[t]=ants[0].tabu[t];   
-			  for(j=0;j<acs.antCount;j++){
-				   if (temp>ants[j].currentTourLength) {   
-					    temp=ants[j].currentTourLength;   
-					    for ( t=0;t<acs.cityCount;t++)   
-					    	temptour[t]=ants[j].tabu[t];   
-				   }   
-			  }
+			 //Suche beste Lösung von allen Ameisen und in temp[] speichern
+			 int t;   
+			 temp=ants[0].currentTourLength;   
+			 for (t=0;t<acs.cityCount;t++)   
+			  temptour[t]=ants[0].tabu[t];   
+			 for(j=0;j<acs.antCount;j++){
+			   if (temp>ants[j].currentTourLength) {   
+				    temp=ants[j].currentTourLength;   
+				    for ( t=0;t<acs.cityCount;t++)   
+				    	temptour[t]=ants[j].tabu[t];   
+			   }   
+			 }
 			   
-			  if(temp<m_dLength){   
-				   m_dLength=temp;   
-				   for ( t=0;t<acs.cityCount;t++)   
-					   acs.bestTour[t]=temptour[t];   
-			  }   
+			 if(temp<m_dLength){   
+				 m_dLength=temp;   
+				 for ( t=0;t<acs.cityCount;t++)   
+					 acs.bestTour[t]=temptour[t];   
+			 }   
 			  
-			  //update pheromone matrix
-			  updateTrail();    
+			 //Global Pheromone Update
+			 updateTrail();    
+			 
+			 
+			 for(j=0;j<acs.antCount;j++)    
+				 ants[j].clear();   
 			   
-			  for(j=0;j<acs.antCount;j++)    
-				  ants[j].clear();   
-			   
-			  max++;   
+			 max++;   
 		   
-		 }   
+		 }
+		 
+		 
 		 System.out.println("The shortest tour is : " + m_dLength);   
 		   
 		 for ( int t=0;t<acs.cityCount;t++)   
@@ -138,5 +146,32 @@ public class AntColony {
 			acs.bestTour[i]=0;
 		}
 	}
+	
+//    protected void globalUpdatingRule()
+//    {
+//        double dEvaporation = 0;
+//        double dDeposition  = 0;
+//        
+//        for(int r = 0; r < m_graph.nodes(); r++)
+//        {
+//            for(int s = 0; s < m_graph.nodes(); s++)
+//            {
+//                if(r != s)
+//                {
+//                    // get the value for deltatau
+//                    double deltaTau = //Ant4TSP.s_dBestPathValue * (double)Ant4TSP.s_bestPath[r][s];
+//                        ((double)1 / Ant4TSP.s_dBestPathValue) * (double)Ant4TSP.s_bestPath[r][s];
+//                                    
+//                    // get the value for phermone evaporation as defined in eq. d)
+//                    dEvaporation = ((double)1 - A) * m_graph.tau(r,s);
+//                    // get the value for phermone deposition as defined in eq. d)
+//                    dDeposition  = A * deltaTau;
+//                    
+//                    // update tau
+//                    m_graph.updateTau(r, s, dEvaporation + dDeposition);
+//                }
+//            }
+//        }
+//    }
 	
 }

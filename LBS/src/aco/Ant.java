@@ -2,24 +2,46 @@ package aco;
 
 import java.util.Random;
 
-
-/**
- * @author Phili
- *
- */
 /**
  * @author Phili
  *
  */
 public class Ant {
 	
-	private ACS acs; //Settings
-	private double prob[]; //übergangswahrscheinlichkeiten von einer stadt zu deren nachfolgern
-	private int cityCount; //anzahl besuchter städte
-	private int allowedCity[]; //stadt noch nicht besucht
-	public int tabu[]; //besuchte städte->speichert auch reihenfolge in der die städte besucht wurden
-	public double currentTourLength; //länge der aktuellen tour
-	double shortestTourLength; //länge der kürzesten tour
+	/**
+	 * ACS Settings
+	 */
+	private ACS acs;
+	
+	/**
+	 * Probability-Array for city transitions
+	 */
+	private double prob[];
+		
+	/**
+	 * Number of citys visited
+	 */
+	private int cityCount;
+	
+	/**
+	 * >0 if Allowed to visit city, index is number of city
+	 */
+	private int allowedCity[];
+		
+	/**
+	 * Already visited cities, also stores order in which citys have been visited
+	 */
+	public int tabu[];
+		
+	/**
+	 * Length of the current Tour
+	 */
+	public double currentTourLength;
+		
+	/**
+	 * Length of shortest Tour found so far
+	 */
+	double shortestTourLength;
 	
 	static final Random random = new Random();
 	
@@ -39,12 +61,9 @@ public class Ant {
 	}
 	
 
-	/** Choose next city to visit
-	 * @return Index of next city
-	 */
 	private int chooseNextCity()
 	{
-        if (ACS.random.nextDouble() < 0.1)
+        if (ACS.random.nextDouble() < acs.q0)
         {
             return pickRandomNode();
         }
@@ -63,11 +82,12 @@ public class Ant {
 		for (int i = 0; i < acs.cityCount; i++) {
 			  if((allowedCity[i]==1))    
 			  {   
-			   double temp =Math.pow((double)(1.0/acs.distance[curCity][i]),acs.beta)*Math.pow((acs.dTrail[curCity][i]),acs.alpha);
-			   if(temp>highest){
-				   highest=temp;
-				   highestCity = i;
-			   }
+				  double temp =acs.eta[curCity][i]*Math.pow((acs.dTrail[curCity][i]),acs.alpha);
+				  //double temp =Math.pow((double)(1.0/acs.distance[curCity][i]),acs.beta)*Math.pow((acs.dTrail[curCity][i]),acs.alpha);
+				  if(temp>highest){
+					   highest=temp;
+					   highestCity = i;
+				  }
 			  }  
 		}
 		
@@ -83,7 +103,8 @@ public class Ant {
 		{   
 			if((allowedCity[i]==1))    
 			{   
-				sum+=Math.pow((double)(1.0/acs.distance[curCity][i]),acs.beta)*Math.pow((acs.dTrail[curCity][i]),acs.alpha);
+				sum+=acs.eta[curCity][i]*Math.pow((acs.dTrail[curCity][i]),acs.alpha);
+				//sum+=Math.pow((double)(1.0/acs.distance[curCity][i]),acs.beta)*Math.pow((acs.dTrail[curCity][i]),acs.alpha);
 				prob[i]=sum;
 			}else
 				prob[i]=0;
@@ -177,7 +198,9 @@ public class Ant {
 		addCity(t);
 	}
 	
-	//update tour length
+	/**
+	 * Update tour length
+	 */
 	public void updateResult()
 	{
 		 // Update the length of tour   
@@ -187,7 +210,10 @@ public class Ant {
 		 currentTourLength+=acs.distance[tabu[acs.cityCount-1]][tabu[0]];   
 	}
 	
-	//move ant to next city and add city-id to tabu
+
+	/**
+	 * Move ant to next city and add city-id to tabu
+	 */
 	public void move(){
 		 int j;   
 		 j=chooseNextCity();   

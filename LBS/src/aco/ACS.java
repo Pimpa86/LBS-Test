@@ -2,12 +2,16 @@ package aco;
 import java.util.Random;
 
 
+
 /**
  * @author Phili
- * Main-Class for ACO
+ * Main Class for Ant Colony System
+ * TODO: Abstandsmatrix vorberechnen und speichern (Math.pow aufruf vermeiden ) (DONE)
+ * TODO: Pheromonematrix durch NN-Search vorinitialisieren
+ * TODO: Global Update Rule noch nicht korrekt => nur falls die global beste Tour gefunden wurde Pheromatrix updaten nicht immer für jede Ameise
  */
 public class ACS {
-	
+
 	/**
 	 * Number of Ants
 	 */
@@ -24,36 +28,63 @@ public class ACS {
 	public int iterationCount;
 
 	/**
-	 * Pherome amount each ant deposits when a tour is completed
+	 * Amount of pheromone each ant deposits when a tour is completed
 	 */
 	public double Q;
+		
+	/**
+	 * Value for Alpha (default 1.0)
+	 */
+	public double alpha;
+		
+	/**
+	 * Value for Beta (default 2.0)
+	 */
+	public double beta;
 	
-	public double alpha;//Alpha   
-	public double beta;//Beta
-	public double evap_rate;//Verdunstungsfaktor
-	public double d0; //init phero-value
+	/**
+	 * Pheromone evaporation-factor (]0,1[, default: 0.1)
+	 */
+	public double evap_rate;
+		
+	/**
+	 * Initial Pheromone
+	 */
+	public double d0;
 	
-	public int bestTour[]; //bis jetzt kürzeste gefundene Tour
+	/**
+	 * Exploration or Exploitation for Ant::chooseNextCity()
+	 */
+	public double q0;
 	
+	
+	public int bestTour[]; //bis jetzt kürzeste gefundene Tour	
 	public double dTrail[][]; //Pheromon-Matrix
 	public double dDeltaTrail[][]; //Delta-Pheromon-Matrix
 	public double distance[][]; // Distanzmatrix
+	public double eta[][]; //precalculated distance matrix
+	
 	
 	static final Random random = new Random();
  
 	public AntColony antColony;
 	
-	/**
+	/** Default Constructor for ACS
 	 * @param distances Distance-Matrix
+	 * Default Values: 	Iteration: 300
+	 * 					Alpha: 1.0
+	 * 					Beta: 2.0
+	 * 					evap_rate: 0.1
+	 * 					Q: 100
 	 */
 	public ACS(double[][] distances){
 		
 
-		this(distances,300,1.0,1,0.1,100.0);
+		this(distances,300,1.0,2.0,0.1,100.0,0.1);
 
 	}
 	
-	/** Main-Construcor
+	/** Main-Constructor
 	 * @param distances Distance-Matrix
 	 * @param iteration_count Iteration Count
 	 * @param alpha Alpha
@@ -61,7 +92,7 @@ public class ACS {
 	 * @param evap_rate Evaporation Rate
 	 * @param Q Pheromone Deposit
 	 */
-	public ACS(double[][] distances, int iteration_count, double alpha, double beta, double evap_rate, double Q){
+	public ACS(double[][] distances, int iteration_count, double alpha, double beta, double evap_rate, double Q,double q0){
 		
 		this.cityCount = distances[0].length;
 		this.distance  = new double[cityCount][cityCount];
@@ -80,19 +111,23 @@ public class ACS {
 		this.iterationCount = iteration_count;
 		this.evap_rate = evap_rate;
 		this.Q=Q;
+		this.q0=q0;
+		
+		//precalculate eta-Matrix
+		this.eta = new double[cityCount][cityCount];
+		for (int i = 0; i < distances.length; i++) {
+			for (int j = 0; j < distances[0].length; j++) {
+				eta[i][j]=Math.pow((double)(1.0/distance[i][j]),beta);
+			}
+		}
 		
 		this.antColony = new AntColony(this);
 	}
 	
-//	/**
-//	 * asdfasdf
-//	 */
-//	public void init(){
-//		this.antColony = new AntColony(this);
-//		this.dTrail = new double[cityCount][cityCount];
-//		this.dDeltaTrail  = new double[cityCount][cityCount];
-//	}
 	
+	/**
+	 * @return Returns Array of best tour found
+	 */
 	public int[] getTour(){
 
 		antColony.getAnts();
