@@ -4,7 +4,7 @@ public class AntColony {
 	
 	private ACS acs;
 	
-	public double m_dLength;
+	public double bestTourLength;
 	public Ant ants[];
 	
 	public AntColony(ACS a){
@@ -14,52 +14,75 @@ public class AntColony {
 		for (int i = 0; i < acs.antCount; i++) {
 			ants[i] = new Ant(acs);
 		}
-		m_dLength=Double.MAX_VALUE;
+		bestTourLength=Double.MAX_VALUE;
 		for (int i = 0; i < acs.cityCount; i++) {
 			acs.bestTour[i]=0;
 		}
 		
 	}
 	
-	public void updateTrail(){
-		 int i;   
-		 int j;   
+	public void globalUpdate(){
+		int i;   
+		int j;   
 		   
-		 for(i=0;i<acs.antCount;i++)   
-		 {   
-			  for (j=0;j<acs.cityCount-1;j++)   
-			  {   
-				  acs.dDeltaTrail[ants[i].tabu[j]][ants[i].tabu[j+1]]+=acs.Q/ants[i].currentTourLength ;   
-				  acs.dDeltaTrail[ants[i].tabu[j+1]][ants[i].tabu[j]]+=acs.Q/ants[i].currentTourLength;   
-			  }   
-			  acs.dDeltaTrail[ants[i].tabu[acs.cityCount-1]][ants[i].tabu[0]]+=acs.Q/ants[i].currentTourLength;   
-			  acs.dDeltaTrail[ants[i].tabu[0]][ants[i].tabu[acs.cityCount-1]]+=acs.Q/ants[i].currentTourLength;   
-			 }   
-			 for (i=0;i<acs.cityCount;i++)   {   
-				 for (j=0;j<acs.cityCount;j++)   {   
-					 acs.dTrail[i][j]=(acs.evap_rate*acs.dTrail[i][j]+acs.dDeltaTrail[i][j] );   
-					 acs.dDeltaTrail[i][j]=0;   
-				 }   
-			 }
+		for(i=0;i<acs.antCount;i++){   
+			for (j=0;j<acs.cityCount-1;j++){   
+				acs.dDeltaTrail[ants[i].tabu[j]][ants[i].tabu[j+1]]+=acs.Q/ants[i].currentTourLength;   
+				acs.dDeltaTrail[ants[i].tabu[j+1]][ants[i].tabu[j]]+=acs.Q/ants[i].currentTourLength;   
+			}
+			
+			acs.dDeltaTrail[ants[i].tabu[acs.cityCount-1]][ants[i].tabu[0]]+=acs.Q/ants[i].currentTourLength;   
+			acs.dDeltaTrail[ants[i].tabu[0]][ants[i].tabu[acs.cityCount-1]]+=acs.Q/ants[i].currentTourLength;   
+		}
+		
+		for (i=0;i<acs.cityCount;i++){   
+			for (j=0;j<acs.cityCount;j++){   
+				acs.dTrail[i][j]=(acs.evap_rate*acs.dTrail[i][j]+acs.dDeltaTrail[i][j] );   
+				acs.dDeltaTrail[i][j]=0;   
+			}   
+		}
 		 
+	
+	}
+	
+	public void globalUpdate2(double length, int[] tour){
+		
+		for (int j=0;j<acs.cityCount-1;j++){
+			
+			acs.dDeltaTrail[tour[j]][tour[j+1]] += 1.0/length;
+			acs.dDeltaTrail[tour[j+1]][tour[j]] += 1.0/length;
+		}
+		
+		acs.dDeltaTrail[tour[acs.cityCount-1]][0] += 1.0/length;
+		acs.dDeltaTrail[tour[0]][acs.cityCount-1] += 1.0/length;
+
+		for (int i = 0; i < acs.cityCount; i++) {
+			for (int j = 0; j < acs.cityCount; j++) {
+				acs.dTrail[i][j]= (1.0-acs.evap_rate) * acs.dTrail[i][j] + acs.evap_rate * acs.dDeltaTrail[i][j];
+				acs.dTrail[j][i]= (1.0-acs.evap_rate) * acs.dTrail[i][j] + acs.evap_rate * acs.dDeltaTrail[i][j];
+				acs.dDeltaTrail[i][j]=0;
+			}
+			
+		}
 	}
 	
 	public void initMap(){
-		int i;   
-		 int j;   
-		 for(i=0;i<acs.cityCount;i++)   
-		  for (j=0;j<acs.cityCount;j++)   
-		  {   
-		   acs.dTrail[i][j]=1;   
-		   acs.dDeltaTrail[i][j]=0;   
-		  }   
+		
+		for(int i=0;i<acs.cityCount;i++)
+			for (int j=0;j<acs.cityCount;j++){
+			acs.dTrail[i][j]=acs.tau0;
+			acs.dDeltaTrail[i][j]=0;
+		}
+		
 	}
+	
+
 	
 	
 	/**
 	 * Distribute Ants randomly across citys
 	 */
-	public void getAnts(){ 
+	public void initAnts(){ 
 		 int i=0;   
 		 int city;   
 
@@ -85,9 +108,11 @@ public class AntColony {
 			 //Jede Ameise jede Stadt einmal besuchen
 			 for(j=0;j<acs.antCount;j++){ //for every ant   
 				   for (i=0;i<acs.cityCount-1;i++){  //visit every city
+					   
 					   ants[j].move();
+					   
 					   //local pheromon update nach ACS
-					   acs.dTrail[ants[j].tabu[i]][ants[j].tabu[i+1]]=(1-acs.evap_rate)*acs.dTrail[ants[j].tabu[i]][ants[j].tabu[i+1]]+acs.evap_rate*1.0;
+					   acs.dTrail[ants[j].tabu[i]][ants[j].tabu[i+1]]=(1-acs.evap_rate)*acs.dTrail[ants[j].tabu[i]][ants[j].tabu[i+1]]+acs.evap_rate*acs.tau0;
 				   }
 			  }   
 
@@ -102,23 +127,24 @@ public class AntColony {
 			 int t;   
 			 temp=ants[0].currentTourLength;   
 			 for (t=0;t<acs.cityCount;t++)   
-			  temptour[t]=ants[0].tabu[t];   
+				 temptour[t]=ants[0].tabu[t];   
 			 for(j=0;j<acs.antCount;j++){
-			   if (temp>ants[j].currentTourLength) {   
-				    temp=ants[j].currentTourLength;   
-				    for ( t=0;t<acs.cityCount;t++)   
+				 if (temp>ants[j].currentTourLength) {   
+					 temp=ants[j].currentTourLength;   
+					 for ( t=0;t<acs.cityCount;t++)   
 				    	temptour[t]=ants[j].tabu[t];   
-			   }   
+				 }   
 			 }
-			   
-			 if(temp<m_dLength){   
-				 m_dLength=temp;   
+			 
+			 if(temp<bestTourLength){   
+				 bestTourLength=temp;
+				 globalUpdate2(bestTourLength,temptour);  
 				 for ( t=0;t<acs.cityCount;t++)   
 					 acs.bestTour[t]=temptour[t];   
 			 }   
 			  
 			 //Global Pheromone Update
-			 updateTrail();    
+			 //globalUpdate2();    
 			 
 			 
 			 for(j=0;j<acs.antCount;j++)    
@@ -129,7 +155,7 @@ public class AntColony {
 		 }
 		 
 		 
-		 System.out.println("The shortest tour is : " + m_dLength);   
+		 System.out.println("The shortest tour is : " + bestTourLength);   
 		   
 		 for ( int t=0;t<acs.cityCount;t++)   
 			 System.out.print(acs.bestTour[t]+",");   
@@ -141,7 +167,7 @@ public class AntColony {
 		for (int i = 0; i < acs.antCount; i++) {
 			ants[i] = new Ant(acs);
 		}
-		m_dLength=Double.MAX_VALUE;
+		bestTourLength=Double.MAX_VALUE;
 		for (int i = 0; i < acs.cityCount; i++) {
 			acs.bestTour[i]=0;
 		}

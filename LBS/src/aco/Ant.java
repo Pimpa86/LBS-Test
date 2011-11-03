@@ -63,13 +63,15 @@ public class Ant {
 
 	private int chooseNextCity()
 	{
-        if (ACS.random.nextDouble() < acs.q0)
+        if (ACS.random.nextDouble() <= acs.q0)
         {
-            return pickRandomNode();
+        	//exploitation
+            return pickGreedyNode();
         }
         else
         {
-            return pickGreedyNode();
+        	//exploration
+            return pickRandomNode();
         }
 	}
 	
@@ -199,7 +201,7 @@ public class Ant {
 	}
 	
 	/**
-	 * Update tour length
+	 * Update tour length when ant has completed a tour
 	 */
 	public void updateResult()
 	{

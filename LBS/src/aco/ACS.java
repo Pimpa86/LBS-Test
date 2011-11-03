@@ -7,7 +7,7 @@ import java.util.Random;
  * @author Phili
  * Main Class for Ant Colony System
  * TODO: Abstandsmatrix vorberechnen und speichern (Math.pow aufruf vermeiden ) (DONE)
- * TODO: Pheromonematrix durch NN-Search vorinitialisieren
+ * TODO: Pheromonematrix durch NN-Search vorinitialisieren (DONE)
  * TODO: Global Update Rule noch nicht korrekt => nur falls die global beste Tour gefunden wurde Pheromatrix updaten nicht immer für jede Ameise
  */
 public class ACS {
@@ -57,8 +57,15 @@ public class ACS {
 	 */
 	public double q0;
 	
+	/**
+	 * Initial Pheromone Value
+	 */
+	public double tau0;
+	
 	
 	public int bestTour[]; //bis jetzt kürzeste gefundene Tour	
+	
+	
 	public double dTrail[][]; //Pheromon-Matrix
 	public double dDeltaTrail[][]; //Delta-Pheromon-Matrix
 	public double distance[][]; // Distanzmatrix
@@ -80,7 +87,7 @@ public class ACS {
 	public ACS(double[][] distances){
 		
 
-		this(distances,300,1.0,2.0,0.1,100.0,0.1);
+		this(distances,300,1.0,2.0,0.1,100.0,0.9);
 
 	}
 	
@@ -98,13 +105,14 @@ public class ACS {
 		this.distance  = new double[cityCount][cityCount];
 		this.distance = distances;
 
+		this.tau0 = 1.0/(cityCount*nearestNeighborSearch());
 		this.dTrail = new double[cityCount][cityCount];
 		this.dDeltaTrail  = new double[cityCount][cityCount];
 		
 		
 		this.bestTour  = new int[cityCount];
 		
-		this.antCount = cityCount;
+		this.antCount = 10;
 		
 		this.alpha = alpha;
 		this.beta = beta;
@@ -122,6 +130,7 @@ public class ACS {
 		}
 		
 		this.antColony = new AntColony(this);
+		
 	}
 	
 	
@@ -130,11 +139,43 @@ public class ACS {
 	 */
 	public int[] getTour(){
 
-		antColony.getAnts();
+		antColony.initAnts();
 		antColony.startSearch();
 
 		return bestTour;
 	}
 	
+	
+	public double nearestNeighborSearch(){
+		int[] temp = new int[cityCount];
+		boolean[] visited = new boolean[cityCount];
+		double sum=0.0;
+		
+		//Erste Stadt
+		temp[0]=0;
+		visited[0]=true;
+		
+		//NN-Suche über restliche Städte
+		double dmin = Float.MAX_VALUE;
+		int minIndex = -1;
+		for (int i = 0; i < cityCount-1; i++) {
+			for (int j = 0; j < cityCount; j++) {
+				if(i!=j && !visited[j] && distance[temp[i]][j]<dmin){
+					dmin = distance[temp[i]][j];
+					minIndex = j;
+				}
+					
+			}
+			
+			//--
+			temp[i+1]=minIndex;
+			visited[minIndex]=true;
+			sum+=dmin;
+			dmin = Float.MAX_VALUE;
+			minIndex = -1;
+		}
+
+		return sum;
+	}
 
 }

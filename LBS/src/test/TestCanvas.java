@@ -21,7 +21,7 @@ import util.Point;
 		
 		public void paint (Graphics g)
 	    {   
-			g.drawString(new Double(t.acs.antColony.m_dLength).toString(),30, 30);
+			g.drawString(new Double(t.acs.antColony.bestTourLength).toString(),30, 30);
 
 	        for(int i = 0;i<t.points.length;i++){
 	        	
