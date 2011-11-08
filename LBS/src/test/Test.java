@@ -33,11 +33,11 @@ public class Test {
 //		}
 	}
 	public void run(){
-		
+		acs = new ACS(buildMatrix(points));
 		for (int i = 0; i < 10; i++) {
 			
 		
-		acs = new ACS(buildMatrix(points));
+		
 		
 
 		bestTour = acs.getTour();

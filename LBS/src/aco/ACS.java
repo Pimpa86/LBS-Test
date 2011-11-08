@@ -87,7 +87,7 @@ public class ACS {
 	public ACS(double[][] distances){
 		
 
-		this(distances,100,1.0,2.0,0.1,100.0,0.9);
+		this(distances,200,1.0,2.0,0.1,100.0,0.9);
 
 	}
 	

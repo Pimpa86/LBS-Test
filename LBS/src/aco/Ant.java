@@ -123,62 +123,7 @@ public class Ant {
 		}  
 		return j;
 	}
-	
-	//Liefert die nächste Stadt, die noch nicht besucht wurde
-//	private int chooseNextCity()
-//	{
-//
-//		   
-//		 int i;   
-//		 int j=10000;   
-//		 double temp=0;   
-//		 int curCity=tabu[m_iCitycount-1];   
-//		 for (i=0;i<acs.cityCount;i++)   
-//		 {   
-//		  if((allowedCity[i]==1))    
-//		  {   
-//		   temp+=Math.pow((double)(1.0/acs.distance[curCity][i]),acs.beta)*Math.pow((acs.dTrail[curCity][i]),acs.alpha);   
-//		  }   
-//		 }   
-//
-//		 double sel=0;   
-//		 for (i=0;i<acs.cityCount;i++)   
-//		 {     
-//		  if((allowedCity[i]==1))   
-//		  {   
-//		   prob[i]=Math.pow((1.0/acs.distance[curCity][i]),acs.beta)*Math.pow((acs.dTrail[curCity][i]),acs.alpha)/temp;   
-//		   sel+=prob[i];   
-//		  }   
-//		  else    
-//		   prob[i]=0;   
-//		 }   
-//		 double mRate= ACS.random.nextDouble();//*sel;
-//		 double mSelect=0;   
-//		   
-//		 for ( i=0;i<acs.cityCount;i++)   
-//		 {   
-//		  if((allowedCity[i]==1))   
-//		   mSelect+=prob[i] ;   
-//		  if (mSelect>=mRate) {j=i;break;}   
-//		 }   
-//		   
-//		 if (j==10000)   
-//		 {   
-//		  temp=-1;   
-//		  for (i=0;i<acs.cityCount;i++)   
-//		  {    
-//		   if((allowedCity[i]==1))   
-//		    if (temp<Math.pow((1.0/acs.distance[curCity][i]),acs.beta)*Math.pow((acs.dTrail[curCity][i]),acs.alpha))        
-//		    {   
-//		     temp=Math.pow((1.0/acs.distance[curCity][i]),acs.beta)*Math.pow((acs.dTrail[curCity][i]),acs.alpha);   
-//		     j=i;   
-//		    }   
-//		  }   
-//		 }   
-//		   
-//		 return j;   
-//	}
-	
+		
 	//Stadt wurde besucht
 	public void addCity(int city)
 	{
