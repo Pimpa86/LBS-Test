@@ -6,6 +6,7 @@ import java.util.Vector;
 import javax.swing.JFrame;
 
 import util.Point;
+import util.TspFileReader;
 import aco.ACS;
 
 public class Test {
@@ -13,7 +14,7 @@ public class Test {
 	public Point[] points;
 	static final Random random = new Random();
 	
-	final int COORD_MAX = 1000;
+	final int COORD_MAX = 80;
 	public int[] bestTour;
 	ACS acs;
 	public Test(int n){
@@ -25,9 +26,11 @@ public class Test {
 	
 	public void init(){
 
-		for (int i = 0; i < points.length; i++) {
-			points[i]= getPoint(COORD_MAX);
-		}
+		TspFileReader fR = new TspFileReader();
+		points = fR.readFile();
+//		for (int i = 0; i < points.length; i++) {
+//			points[i]= getPoint(COORD_MAX);
+//		}
 	}
 	public void run(){
 		

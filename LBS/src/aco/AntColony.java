@@ -45,7 +45,7 @@ public class AntColony {
 	
 	}
 	
-	public void globalUpdate2(double length, int[] tour){
+	public void globalUpdate(double length, int[] tour){
 		
 		for (int j=0;j<acs.cityCount-1;j++){
 			
@@ -59,7 +59,7 @@ public class AntColony {
 		for (int i = 0; i < acs.cityCount; i++) {
 			for (int j = 0; j < acs.cityCount; j++) {
 				acs.dTrail[i][j]= (1.0-acs.evap_rate) * acs.dTrail[i][j] + acs.evap_rate * acs.dDeltaTrail[i][j];
-				acs.dTrail[j][i]= (1.0-acs.evap_rate) * acs.dTrail[i][j] + acs.evap_rate * acs.dDeltaTrail[i][j];
+				acs.dTrail[j][i]= (1.0-acs.evap_rate) * acs.dTrail[j][i] + acs.evap_rate * acs.dDeltaTrail[j][i];
 				acs.dDeltaTrail[i][j]=0;
 			}
 			
@@ -138,7 +138,7 @@ public class AntColony {
 			 
 			 if(temp<bestTourLength){   
 				 bestTourLength=temp;
-				 globalUpdate2(bestTourLength,temptour);  
+				 globalUpdate(bestTourLength,temptour);  
 				 for ( t=0;t<acs.cityCount;t++)   
 					 acs.bestTour[t]=temptour[t];   
 			 }   
